@@ -1,61 +1,89 @@
 #include "sort.h"
 
 /**
- * swapme - swap the nodes themselves.
- * @current: pointer.
- * @current_old: pointer.
- * @list: doubly linked list
+ * swap_nodes - swap between 2 nodes
+ *
+ * @slow: pointer to the first node to swap
+ * @fast: pointer to the second node to swap
+ * @list: double linked list
+ * Return: void
  */
-void swapme(listint_t *current, listint_t *current_old, listint_t **list)
+void swap_nodes(listint_t **slow, listint_t **fast, listint_t **list)
 {
-	listint_t *temp1 = current->next;
-	listint_t *temp2 = current_old->prev;
+	listint_t *before, *after;
 
-	if (temp1 != NULL)
-		temp1->prev = current_old;
-	if (temp2 != NULL)
-		temp2->next = current;
-	current->prev = temp2;
-	current_old->next = temp1;
-	current->next = current_old;
-	current_old->prev = current;
-	if (*list == current_old)
-		*list = current;
-	print_list(*list);
+	
+	if (!(*slow) || !(*fast))
+		return;
+
+	
+	before = (*slow)->prev;
+	after = (*fast)->next;
+	
+	if (before)
+		before->next = (*fast);
+	(*fast)->prev = before;
+
+	(*fast)->next = (*slow);
+	(*slow)->prev = (*fast);
+
+	(*slow)->next = after;
+	if (after)
+		after->prev = (*slow);
+	
+	*slow = *fast;
+	*fast = (*slow)->next;
+	
+	if (!before)
+		*list = *slow;
 }
 
 /**
- * cocktail_sort_list - cocktail_sort_list
+ * cocktail_sort_list - improve of bubble sort algorithm
+ * go through the array since head to tail take the biggest n
+ * return since the tail - 1 until head + 1 bringing the small n
  *
- * @list: doubly linked list
+ * @list: double linked list
+ * Return: void
  */
 void cocktail_sort_list(listint_t **list)
 {
-	listint_t *check = *list, *first = NULL, *last = NULL;
+	listint_t *slow, *fast;
+	int left_limit = -1, right_limit = -1, counter = 0;
 
-	if (!list)
+	if (!list || !(*list) || (!((*list)->prev) && !((*list)->next)))
 		return;
-	if (!(*list))
-		return;
-	if (!(*list)->next)
-		return;
-	do {
-		while (check->next)
+
+	
+	slow = *list;
+	fast = (*list)->next;
+	while (left_limit <= right_limit)
+	{
+		left_limit++;
+		while (slow && fast && counter != right_limit)
 		{
-			if (check->n > check->next->n)
-				swapme(check->next, check, list);
-			else
-				check = check->next;
+			if (slow->n > fast->n)
+				swap_nodes(&slow, &fast, list), print_list(*list);
+			slow = slow->next;
+			fast = fast->next;
+			counter++;
 		}
-		last = check;
-		while (check->prev != first)
+		if (left_limit == 0)
+			right_limit = counter;
+		right_limit--;
+		
+		slow = slow->prev;
+		fast = slow->prev;
+		while (slow && fast && counter >= left_limit)
 		{
-			if (check->n < check->prev->n)
-				swapme(check, check->prev, list);
-			else
-				check = check->prev;
+			if (slow->n < fast->n)
+				swap_nodes(&fast, &slow, list), print_list(*list);
+			slow = slow->prev;
+			fast = fast->prev;
+			counter--;
 		}
-		first = check;
-	} while (first != last);
+		
+		slow = slow->next;
+		fast = slow->next;
+	}
 }
-
