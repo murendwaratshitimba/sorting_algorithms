@@ -15,7 +15,7 @@ void merge(int *array, int *helper, int low, int middle, int high)
 int helperLeft = low, helperRight = middle + 1, current = low;
 int i, current_print;
 
-
+/* create a strdup of the array in helper */
 for (i = low; i <= high; i++)
 helper[i] = array[i];
 
